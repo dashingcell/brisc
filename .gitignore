@@ -1,0 +1,20 @@
+# Python and build artifacts
+brisc/__pycache__/
+build/
+dist/
+*.egg-info/
+wheelhouse/
+conda-bld/
+brisc/_v2/
+brisc/_v3/
+brisc/_v4/
+brisc/_sve/
+
+# Cython artifacts (generated C/C++ files and compiled libraries)
+*.c
+*.cpp
+*.so
+*.pyd
+
+# Miscellaneous
+*.txt

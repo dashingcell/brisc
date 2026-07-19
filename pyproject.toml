@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "Cython>=3.0", "numpy>=1.17.0", "scipy>=0.16.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brisc"
+version = "0.1.0"
+description = "Fast single-cell toolkit"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "Michael Wainberg", email = "m.wainberg@utoronto.ca"}
+]
+dependencies = [
+    "anndata",
+    "h5py",
+    "matplotlib>=3.5.0",
+    "numpy>=1.17.0",
+    "pandas",
+    "polars>=1.41.0",
+    "pyarrow>=0.17.0",
+    "ryp",
+    "scipy>=0.16.0",
+    "scikit-misc",
+    "threadpoolctl"
+]
+
+[tool.setuptools.packages.find]
+include = ["brisc", "brisc.*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.cpp", "*.c"]
+
+[tool.cibuildwheel]
+build = "cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*" 
+skip = "*musllinux* *i686* *ppc64le* *s390x*"
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+
+# [tool.cibuildwheel.macos]
+# archs = ["arm64"]
+# # Download a lowest-common-denominator OpenMP runtime old enough to be compatible with all ARM macOS versions
+# before-all = "mkdir -p openmp; curl -L https://anaconda.org/conda-forge/llvm-openmp/11.1.0/download/osx-arm64/llvm-openmp-11.1.0-hf3c4609_1.tar.bz2 | tar -xj -C openmp"
+
+[tool.cibuildwheel.macos]
+archs = ["arm64", "x86_64"]
+before-all = """
+mkdir -p openmp openmp_x86_64 && \
+curl -L https://anaconda.org/conda-forge/llvm-openmp/11.1.0/download/osx-arm64/llvm-openmp-11.1.0-hf3c4609_1.tar.bz2 | tar -xj -C openmp && \
+curl -L https://anaconda.org/conda-forge/llvm-openmp/11.1.0/download/osx-64/llvm-openmp-11.1.0-hda6cdc1_1.tar.bz2 | tar -xj -C openmp_x86_64
+"""
+
+# Once x86 Macs become obsolete, remove the current tool.cibuildwheel.macos block and uncomment the currently commented-out one, and make the two changes mentioned in setup.py
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]

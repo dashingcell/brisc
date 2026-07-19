@@ -1,0 +1,56 @@
+on:
+  release:
+    types: [published]
+  pull_request:
+    paths: ['brisc/**', 'setup.py', 'pyproject.toml']
+  push:
+    branches: [main]
+    paths: ['brisc/**', 'setup.py', 'pyproject.toml']
+  workflow_dispatch:   # lets you manually trigger a test build anytime
+
+jobs:
+  build_wheels:
+    name: Build wheels
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21.3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build sdist
+        run: pipx run build --sdist
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-sdist
+          path: dist/*.tar.gz
+
+  publish:
+    needs: [build_wheels, build_sdist]
+    if: github.event_name == 'release'   # only publish on actual releases
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download wheels and source distributions
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-wheels-*
+          merge-multiple: true
+          path: dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
