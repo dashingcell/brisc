@@ -11192,14 +11192,14 @@ class SingleCell:
             # DataFrame in `genes_and_indices`. Fortunately, it's only one
             # small string column per dataset.
             genes_and_indices = pl.align_frames(
-                dataset.var[:, 0]
-                .to_frame('gene')
-                .pipe(lambda df: df.filter(~pl.col.gene.str.contains(
-                    '(?i)' + '|'.join(exclude)))  # case-insensitive
-                    if exclude is not None else df)
-                .with_columns(_SingleCell_index=pl.int_range(pl.len(),
-                                                             dtype=pl.UInt32))
-                for dataset in datasets, on='gene', how='inner')
+                (dataset.var[:, 0]
+                 .to_frame('gene')
+                 .pipe(lambda df: df.filter(~pl.col.gene.str.contains(
+                     '(?i)' + '|'.join(exclude)))  # case-insensitive
+                     if exclude is not None else df)
+                 .with_columns(_SingleCell_index=pl.int_range(pl.len(),
+                                                              dtype=pl.UInt32))
+                 for dataset in datasets), on='gene', how='inner')
             genes_in_all_datasets = genes_and_indices[0]['gene']
             num_genes_in_all_datasets = len(genes_in_all_datasets)
             if num_genes_in_all_datasets == 0:
@@ -11863,14 +11863,14 @@ class SingleCell:
                 # DataFrame in `genes_and_indices`. Fortunately, it's only one
                 # small string column per dataset.
                 genes_and_indices = pl.align_frames(
-                    dataset._var
-                    .with_columns(_SingleCell_index=pl.int_range(
-                        pl.len(), dtype=pl.UInt32))
-                    .pipe(lambda df, hvg_col=hvg_col: df.filter(hvg_col)
-                          if hvg_col is not None else df)
-                    .select('_SingleCell_index', gene=dataset.var_names.name)
-                    for dataset, hvg_col in zip(datasets, hvg_columns),
-                    on='gene', how='inner')
+                    (dataset._var
+                     .with_columns(_SingleCell_index=pl.int_range(
+                         pl.len(), dtype=pl.UInt32))
+                     .pipe(lambda df, hvg_col=hvg_col: df.filter(hvg_col)
+                           if hvg_col is not None else df)
+                     .select('_SingleCell_index', gene=dataset.var_names.name)
+                     for dataset, hvg_col in zip(datasets, hvg_columns)),
+                     on='gene', how='inner')
                 gene_indices = (df['_SingleCell_index'].to_numpy()
                                 for df in genes_and_indices)
                 if QC_column is None:

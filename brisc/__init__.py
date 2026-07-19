@@ -1,6 +1,12 @@
 import os
 import signal
 import sys
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version('brisc')
+except PackageNotFoundError:
+    __version__ = '0.0.0+unknown'
 
 # Disable HDF5 file locking, which can cause issues when loading
 os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'

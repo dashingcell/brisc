@@ -1,13 +1,14 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel", "Cython>=3.0", "numpy>=1.17.0", "scipy>=0.16.0"]
+requires = ["setuptools>=77", "wheel", "Cython>=3.0", "numpy>=1.17.0", "scipy>=0.16.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "brisc"
-version = "0.1.0"
+version = "0.1.1"
 description = "Fast single-cell toolkit"
 readme = "README.md"
 requires-python = ">=3.9"
+license = "MIT"
 authors = [
     {name = "Michael Wainberg", email = "m.wainberg@utoronto.ca"}
 ]
@@ -56,3 +57,7 @@ curl -L https://anaconda.org/conda-forge/llvm-openmp/11.1.0/download/osx-64/llvm
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
+
+[project.urls]
+Homepage = "https://brisc.run"
+Repository = "https://github.com/dashingcell/brisc"
