@@ -1,0 +1,31 @@
+{# Unified "guide" section navigation, shared by the Installation page and every
+   Tutorials page so both show the same left sidebar:
+       Installation        (header, links to the Installation page)
+       Tutorials            (header, links to the Tutorials index)
+          Basic Workflow ... Data manipulation
+   Both top entries are rendered as bd-links__title headers (same font face) but
+   wrap a link, so they're clickable. pydata's default sidebar-nav-bs is scoped
+   to the current section (empty on Installation, only the tutorials on tutorial
+   pages); this renders the combined tree wherever it's used. The tutorial
+   entries come from html_context.guide_tutorials (conf.py) — a single source of
+   truth, also used to build the html_sidebars overrides. #}
+<nav class="bd-docs-nav bd-links" aria-label="Section Navigation">
+  <p class="bd-links__title guide-nav-link" role="heading" aria-level="1">
+    <a class="reference internal{% if pagename == 'installation' %} current{% endif %}"
+       href="{{ pathto('installation') }}">Installation</a>
+  </p>
+  <p class="bd-links__title guide-nav-link" role="heading" aria-level="1">
+    <a class="reference internal{% if pagename == 'tutorials/index' %} current{% endif %}"
+       href="{{ pathto('tutorials/index') }}">Tutorials</a>
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <ul class="nav bd-sidenav">
+      {%- for docname, title in guide_tutorials %}
+      <li class="toctree-l1{% if pagename == docname %} current active{% endif %}">
+        <a class="reference internal{% if pagename == docname %} current{% endif %}"
+           href="{{ pathto(docname) }}">{{ title }}</a>
+      </li>
+      {%- endfor %}
+    </ul>
+  </div>
+</nav>
