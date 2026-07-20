@@ -2,10 +2,10 @@ on:
   release:
     types: [published]
   pull_request:
-    paths: ['brisc/**', 'setup.py', 'pyproject.toml']
+    paths: ['brisc/**', 'setup.py', 'pyproject.toml', 'tests/**']
   push:
     branches: [main]
-    paths: ['brisc/**', 'setup.py', 'pyproject.toml']
+    paths: ['brisc/**', 'setup.py', 'pyproject.toml', 'tests/**']
   workflow_dispatch:   # lets you manually trigger a test build anytime
 
 jobs:
@@ -38,8 +38,53 @@ jobs:
           name: cibw-wheels-sdist
           path: dist/*.tar.gz
 
+  # Test the built wheel (from build_wheels via download-artifact)
+  # install --no-deps; deps + R + limma from conda-forge/bioconda; HF fixture.
+  test:
+    name: Test wheel
+    needs: [build_wheels]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash -el {0}   # login shell -> conda env active
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-wheels-*
+          merge-multiple: true
+          path: wheelhouse
+      - name: Create conda env
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: brisc
+          init-shell: bash
+          post-cleanup: none   # avoids a micromamba Windows deinit bug
+          create-args: >-
+            -c conda-forge
+            python=3.13 pytest pip huggingface_hub
+            anndata h5py matplotlib-base numpy pandas polars pyarrow
+            ryp scikit-misc scipy threadpoolctl
+            ${{ startsWith(matrix.os, 'windows') && 'r-biocmanager' || '-c bioconda bioconductor-limma' }}
+      - name: Install brisc wheel
+        run: pip install --no-index --find-links wheelhouse --no-deps brisc
+      - name: Install limma via BiocManager (Windows only)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          unset R_HOME R_LIBS_USER   # use the conda R, not the runner's
+          Rscript -e 'BiocManager::install("limma", update=FALSE, ask=FALSE)'
+      - name: Run tests
+        run: |
+          unset R_HOME R_LIBS_USER
+          pytest tests/
+
   publish:
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_sdist, test]
     if: github.event_name == 'release'   # only publish on actual releases
     runs-on: ubuntu-latest
     environment: pypi
