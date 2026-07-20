@@ -1,7 +1,6 @@
 # Configuration file for the Sphinx documentation builder.
 
 from __future__ import annotations
-import os
 import re
 from pathlib import Path
 # `brisc` is imported from the active environment's site-packages; no
@@ -129,7 +128,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/dashingcell/brisc",
+            "url": "https://github.com/briscverse/brisc",
             "icon": "fa-brands fa-github",
             "type": "fontawesome",
         },
@@ -833,114 +832,6 @@ def _semantic_highlight(app, exception=None):
         if text != original:
             html_file.write_text(text)
 
-# -- Generate benchmark-data.js from sc-benchmarking CSVs ------------------
-
-# Set BRISC_BENCHMARK_DIR to the sc-benchmarking output to refresh the chart;
-# otherwise the committed benchmark-data.js is used.
-_BENCHMARK_DIR = Path(os.environ.get("BRISC_BENCHMARK_DIR", "sc-benchmarking-output"))
-# For brisc's basic workflow, keep only PaCMAP to match scanpy/seurat which
-# run a single embedding step.
-_BASIC_BRISC_EXCLUDE = {
-    "Embedding (LocalMAP)",
-    "Embedding (UMAP)",
-    "Embedding (UMAP hogwild)",
-}
-
-# The benchmark output is split into per-rep subdirectories; each holds the same
-# set of timer CSVs, one run of every workflow. The chart shows the mean across
-# these reps.
-_BENCHMARK_REPS = ("rep1", "rep2", "rep3")
-
-def _sum_timer_csv(path, exclude=None):
-    import csv
-    total = 0.0
-    with open(path, newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            op = row["operation"]
-            if exclude and op in exclude:
-                continue
-            try:
-                total += float(row["duration"])
-            except (ValueError, TypeError):
-                continue
-    return total
-
-def _mean_timer_total(fname, exclude=None):
-    """Average a workflow's total runtime across the benchmark reps: sum each
-    rep's per-operation durations, then take the mean of the per-rep totals over
-    the reps that actually have the file. Returns None if none do (so the build
-    falls back to the cached benchmark-data.js)."""
-    totals = [
-        _sum_timer_csv(_BENCHMARK_DIR / rep / fname, exclude=exclude)
-        for rep in _BENCHMARK_REPS
-        if (_BENCHMARK_DIR / rep / fname).exists()
-    ]
-    return sum(totals) / len(totals) if totals else None
-
-def _generate_benchmark_data(app):
-    import json
-    cpu_workflows = [
-        ("Basic workflow", "basic"),
-        ("Label transfer", "transfer"),
-        ("Pseudobulk differential expression", "de"),
-    ]
-    cpu_libs = [
-        ("brisc",  "{prefix}_brisc_Parse_-1_timer.csv", True),
-        ("scanpy", "{prefix}_scanpy_Parse_timer.csv",   False),
-        ("seurat", "{prefix}_seurat_Parse_timer.csv",   False),
-    ]
-    groups = {}
-    for label, prefix in cpu_workflows:
-        bars = {}
-        for lib_name, fmt, is_brisc in cpu_libs:
-            exclude = _BASIC_BRISC_EXCLUDE if (is_brisc and prefix == "basic") else None
-            mean = _mean_timer_total(fmt.format(prefix=prefix), exclude=exclude)
-            if mean is not None:
-                bars[lib_name] = round(mean, 2)
-        groups[label] = {"hardware": "cpu", "bars": bars}
-
-    # GPU variant of the basic workflow: brisc vs rapids-single-cell on the
-    # same 10M-cell Parse PBMC dataset but on 96 CPUs + 4x H100 GPUs.
-    gpu_files = [
-        ("brisc",  "basic_brisc_Parse_-1_gpu_timer.csv"),
-        ("rapids", "basic_rapids_Parse_gpu_timer.csv"),
-    ]
-    gpu_bars = {}
-    for lib_name, fname in gpu_files:
-        mean = _mean_timer_total(fname)
-        if mean is not None:
-            gpu_bars[lib_name] = round(mean, 2)
-    if gpu_bars:
-        groups["Basic workflow \u00b7 CPU vs GPU"] = {
-            "hardware": "gpu",
-            "note": "96 CPUs, 4\u00d7 H100 GPU, 752 GB RAM",
-            "bars": gpu_bars,
-        }
-
-    out_path = Path(app.srcdir) / "_static" / "js" / "benchmark-data.js"
-
-    # benchmark-data.js doubles as a cache: regenerate it (refreshing the
-    # committed copy) when the sc-benchmarking CSVs are present, but fall back
-    # to the existing cached file when they aren't -- never clobber real
-    # numbers with empty bars on a machine that lacks the results.
-    has_data = any(group["bars"] for group in groups.values())
-    if not has_data and out_path.exists():
-        from sphinx.util import logging as sphinx_logging
-        sphinx_logging.getLogger(__name__).info(
-            "[benchmark] %s not found; using cached %s",
-            _BENCHMARK_DIR, out_path.name)
-        return
-
-    payload = {
-        "subtitle": "192 CPUs, 755 GB RAM",
-        "groups": groups,
-    }
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(
-        "window.BENCHMARK_DATA = " + json.dumps(payload, indent=2, ensure_ascii=False) + ";\n"
-    )
-
 # Keep the Tutorials and the API classes as LINEAR, self-contained prev/next
 # sequences that do not wrap end-to-end. By default the global toctree chains
 # everything together, so the last tutorial's "next" leaks into the API (Data
@@ -976,6 +867,5 @@ def setup(app):
     app.connect("autodoc-process-docstring", _constructor_dropdowns, priority=400)
     app.connect("autodoc-process-docstring", _md_to_rst_links)
     app.connect("autodoc-process-docstring", _drop_constructor_summary)
-    app.connect("builder-inited", _generate_benchmark_data)
     app.connect("html-page-context", _fix_prev_next)
     app.connect("build-finished", _semantic_highlight, priority=901)

@@ -69,4 +69,4 @@ archs = ["AMD64"]
 
 [project.urls]
 Homepage = "https://brisc.run"
-Repository = "https://github.com/dashingcell/brisc"
+Repository = "https://github.com/briscverse/brisc"
