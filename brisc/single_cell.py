@@ -8419,7 +8419,7 @@ class SingleCell:
                     .select(pl.col('_SingleCell_rand')
                             .rank('ordinal')
                             .over(by_name)
-                            .le('n'))\
+                            .le(pl.col.n))\
                     .to_series()
             else:
                 selected = by_frame\
@@ -8607,7 +8607,7 @@ class SingleCell:
                     .select(pl.col('_SingleCell_rand')
                             .rank('ordinal')
                             .over(by_name)
-                            .le('n'))\
+                            .le(pl.col.n))\
                     .to_series()
             else:
                 selected = by_frame\
