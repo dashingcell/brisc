@@ -1,13 +1,17 @@
 # Build the docs from the in-repo brisc source and deploy to Cloudflare Pages
 # (brisc-docs -> brisc.run). Independent of the wheel/test workflow.
+# Deploys on docs/** edits and each published release; source-only changes to
+# brisc/** are picked up at the next release (or a manual run).
 name: Docs
 
 on:
   push:
     branches: [main]
-    paths: ['docs/**', 'brisc/**', 'setup.py', 'pyproject.toml']
+    paths: ['docs/**']
   pull_request:
-    paths: ['docs/**', 'brisc/**', 'setup.py', 'pyproject.toml']
+    paths: ['docs/**']
+  release:
+    types: [published]
   workflow_dispatch:
 
 # A newer push supersedes an in-flight docs build on the same ref.
