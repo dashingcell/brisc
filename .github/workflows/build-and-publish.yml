@@ -1,12 +1,9 @@
+# Build wheels, test them, and publish to PyPI. Runs only when a release is
+# published (plus manual dispatch) to conserve CI minutes.
 on:
   release:
     types: [published]
-  pull_request:
-    paths: ['brisc/**', 'setup.py', 'pyproject.toml', 'tests/**']
-  push:
-    branches: [main]
-    paths: ['brisc/**', 'setup.py', 'pyproject.toml', 'tests/**']
-  workflow_dispatch:   # lets you manually trigger a test build anytime
+  workflow_dispatch:   # manually trigger a test build (no publish) anytime
 
 jobs:
   build_wheels:
