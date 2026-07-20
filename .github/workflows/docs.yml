@@ -1,0 +1,53 @@
+# Build the docs from the in-repo brisc source and deploy to Cloudflare Pages
+# (brisc-docs -> brisc.run). Independent of the wheel/test workflow.
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**', 'brisc/**', 'setup.py', 'pyproject.toml']
+  pull_request:
+    paths: ['docs/**', 'brisc/**', 'setup.py', 'pyproject.toml']
+  workflow_dispatch:
+
+# A newer push supersedes an in-flight docs build on the same ref.
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - uses: actions/setup-node@v4   # for wrangler
+        with:
+          node-version: '20'
+
+      # Compile brisc from source + install the Sphinx stack (no R needed).
+      - name: Install brisc + docs deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[docs]
+
+      # -W: any Sphinx warning fails the build.
+      - name: Build docs
+        run: make -C docs html SPHINXOPTS="-W --keep-going"
+
+      # Deploy on main pushes and manual runs; PRs stop after the build check.
+      - name: Deploy to Cloudflare Pages
+        if: github.event_name != 'pull_request'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          cp docs/deploy/robots.txt docs/deploy/_worker.js docs/build/html/
+          npx --yes wrangler@latest pages deploy docs/build/html \
+            --project-name brisc-docs --branch main --commit-dirty=true

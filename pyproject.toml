@@ -26,6 +26,15 @@ dependencies = [
     "threadpoolctl"
 ]
 
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "pydata-sphinx-theme",
+    "myst-parser",
+    "sphinx-copybutton",
+    "sphinx-design",
+]
+
 [tool.setuptools.packages.find]
 include = ["brisc", "brisc.*"]
 

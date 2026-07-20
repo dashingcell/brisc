@@ -1,0 +1,1451 @@
+/* Force the class signature onto its own full-width line. */
+dl.class>dt:first-of-type {
+    display: block !important;
+}
+
+/* Scanpy-style parameter lists: no bullets, name:type header + indented desc */
+dl.field-list dd > ul.simple {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+dl.field-list dd > ul.simple > li {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+    margin-bottom: 0.8em;
+}
+p.param-header {
+    margin-bottom: 0.1em;
+    /* Monospace so the ":" between the name and type matches them (they set it
+       on their own spans; without this the bare colon falls back to body font). */
+    font-family: var(--pst-font-family-monospace);
+}
+/* param name: orange, monospace */
+p.param-header strong {
+    color: var(--code-orange);
+    font-family: var(--pst-font-family-monospace);
+}
+/* param type: purple, monospace, non-italic */
+p.param-header em {
+    color: var(--code-purple);
+    font-family: var(--pst-font-family-monospace);
+    font-style: normal;
+}
+
+/* Inline code: single backticks in docstrings render as `cite`, double
+   backticks / Markdown backticks as `code.literal`/`code.docutils`. Style
+   them all as a monospace chip with a subtle background, consistently
+   across the API docs and the tutorials. */
+.bd-article cite,
+.bd-article code.docutils,
+.bd-article code.literal {
+    font-family: var(--pst-font-family-monospace) !important;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 0.85em;
+    padding: 0.12em 0.36em;
+    border-radius: 0.25rem;
+    color: var(--code-cyan) !important;
+}
+html[data-theme="light"] .bd-article cite,
+html[data-theme="light"] .bd-article code.docutils,
+html[data-theme="light"] .bd-article code.literal {
+    background-color: #efe7e4;
+}
+html[data-theme="dark"] .bd-article cite,
+html[data-theme="dark"] .bd-article code.docutils,
+html[data-theme="dark"] .bd-article code.literal {
+    background-color: #403838;
+}
+/* Cross-referenced type aliases (linked to the typedefs page): purple. */
+.bd-article a[href*="typedefs.html"] em {
+    color: var(--code-purple) !important;
+    font-style: normal;
+}
+/* typedef links: underline on hover everywhere they appear */
+.bd-article a[href*="typedefs.html"]:hover em {
+    text-decoration: underline;
+}
+/* Type cross-reference links in field lists (parameter & return types) render
+   the type name in emphasis, e.g. <a><em>SingleCell</em></a>. Style them as
+   code -- monospace, non-italic, type-colored -- and let them keep the bold
+   weight of the surrounding link so linked type names stand out, matching the
+   parameter types. */
+.bd-article dl.field-list a.reference em {
+    font-family: var(--pst-font-family-monospace);
+    font-style: normal;
+    color: var(--code-purple) !important;
+}
+/* Return type value: Sphinx renders it as linked type names plus PLAIN-TEXT
+   operators/brackets (` | tuple[ … ]`), so styling only the <em>s (above)
+   would leave the operators in the grey body font. Colour the whole field
+   value as one monospace type expression, matching the parameter types.
+   (conf.py tags this <dd> with .rtype-field.) */
+.bd-article dl.field-list dd.rtype-field p {
+    font-family: var(--pst-font-family-monospace);
+    font-style: normal;
+    color: var(--code-purple);
+}
+/* Indent each parameter's description one level under its name. Targets all
+   non-header children of the <li> so it works whether the description is a
+   simple inline paragraph (p.param-desc) or contains block content — a
+   sub-list or extra paragraphs, which the browser reparents up to the <li>
+   because the post-processed p.param-desc cannot legally contain them. */
+dl.field-list dd > ul.simple > li > *:not(.param-header) {
+    margin-left: 2em;
+}
+/* Single-parameter methods render the param as a bare <p> directly in the
+   field <dd> (no <ul>/<li>), so the rule above can't reach them. Indent the
+   description + any reparented block content the same 2em, scoped via :has()
+   to dds that actually hold a param-header (never the Returns / Return type
+   dds, whose <p> must stay flush). */
+dl.field-list dd:has(> .param-header) > *:not(.param-header) {
+    margin-left: 2em;
+}
+p.param-desc {
+    margin-top: 0;
+}
+
+/* Class description: a boxed lead-in (between the page title and the
+   constructor signature) using the same surface background as the API
+   method-overview tables on the page. */
+.bd-article .class-description {
+    background-color: var(--pst-color-surface);
+    padding: 0.7em 1em 0.75em;
+    margin-bottom: 1.4em;
+}
+.bd-article .class-description > :first-child {
+    margin-top: 0;
+}
+.bd-article .class-description > :last-child {
+    margin-bottom: 0;
+}
+
+/* Autodoc method/function/class body. The theme indents the whole method
+   <dd> by 2rem; we restructure that so the description block (prose AND its
+   lists) sits one level in, while the Parameters / Returns / Notes / Examples
+   that follow reset to the signature's left edge. */
+html[data-theme] dl.py > dd {
+    margin-left: 0;
+}
+html[data-theme] dl.py > dd > * {
+    margin-left: 2rem;
+}
+html[data-theme] dl.py > dd > dl.field-list,
+html[data-theme] dl.py > dd > dl.field-list ~ *,
+html[data-theme] dl.py > dd > p.rubric,
+html[data-theme] dl.py > dd > p.rubric ~ * {
+    margin-left: 0;
+}
+/* Parameters: align the argument list with the "Parameters:" label (the theme
+   otherwise indents the field body, pushing every argument in one level). */
+html[data-theme] dl.py dl.field-list > dd {
+    margin-left: 0;
+}
+/* Breathing room between each field label (Parameters: / Returns: / Return
+   type:) and its content, to avoid crowding. The field list is a single-column
+   grid (dt then dd stacked), so a margin below the <dt> pushes its <dd> down. */
+html[data-theme] dl.py dl.field-list > dt {
+    margin-bottom: 0.5rem;
+}
+
+/* Display long method names over multiple lines in navbar. */
+.bd-toc-item {
+    overflow-wrap: break-word;
+}
+
+/* Box-drawing-complete monospace fallback. Polars renders its tables with
+   box-drawing glyphs (│ ─ ┆ ═ ╞ ╪ ╡ …). Devices without Menlo/Monaco/Consolas
+   fall through to a system monospace that lacks the triple-dash/double-line
+   variants, so the browser substitutes just those glyphs from a proportional
+   font and the table columns drift out of alignment. Shipping a subset of
+   DejaVu Sans Mono (full box-drawing coverage, single advance width) and
+   slotting it ahead of the incomplete fallbacks guarantees the whole block
+   renders in one font. No unicode-range: restricting it to box-drawing only
+   would let the device font keep the digits and re-introduce the mismatch.
+   Desktops with Menlo/Consolas resolve first and never download it. */
+@font-face {
+    font-family: 'DejaVu Sans Mono';
+    src: url('../fonts/DejaVuSansMono-subset.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Body font is left at the theme default; only the monospace stack is
+   overridden so code blocks/signatures match the VS Code default fonts. */
+:root {
+    --pst-font-family-monospace: Menlo, Monaco, Consolas, 'DejaVu Sans Mono', 'Droid Sans Mono', 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* Monokai Pro Ristretto Filter palette — light & dark variants */
+html[data-theme="light"] {
+    --pst-color-on-background: #faf4f2;
+    --pst-color-background: #fefaf9;
+    --pst-color-surface: #faf4f2;
+    --pst-color-on-surface: #29242a;
+    --pst-color-text-base: #29242a;
+    --pst-gradient-sidebar-left: #ede7e5;
+    --pst-gradient-sidebar-right: #ede7e5;
+    --pst-color-border: #d7cfcd;
+    --pst-color-primary: #e16032;
+    --pst-color-accent: #e16032;
+    --pst-color-secondary: #c9542a;
+    --pst-color-link: var(--pst-color-primary);
+    --pst-color-link-hover: var(--pst-color-secondary);
+    /* links inside tables use the "higher contrast" variable; keep it orange too */
+    --pst-color-link-higher-contrast: var(--pst-color-primary);
+
+    --code-red:    #e14775;
+    --code-orange: #e16032;
+    --code-yellow: #cc7a0a;
+    --code-green:  #269d69;
+    --code-purple: #7058be;
+    --code-cyan:   #1c8ca8;
+    --code-comment:#a59c9b;
+    --code-text:   #5b5353;
+}
+
+html[data-theme="dark"] {
+    --pst-color-on-background: #403838;
+    --pst-color-background: #211c1c;
+    --pst-color-surface: #2c2525;
+    --pst-color-on-surface: #fefaf9;
+    --pst-color-text-base: #fefaf9;
+    --pst-gradient-sidebar-left: #2c2525;
+    --pst-gradient-sidebar-right: #2c2525;
+    --pst-color-sidebar-nav: #2c2525;
+    --pst-color-border: #5a4f4f;
+    --pst-color-primary: #f38d70;
+    --pst-color-accent: #f38d70;
+    --pst-color-secondary: #f7a48d;
+    --pst-color-link: var(--pst-color-primary);
+    --pst-color-link-hover: var(--pst-color-secondary);
+    /* links inside tables use the "higher contrast" variable; keep it orange too */
+    --pst-color-link-higher-contrast: var(--pst-color-primary);
+
+    --code-red:    #f06883;
+    --code-orange: #f38d70;
+    --code-yellow: #f9cc6c;
+    --code-green:  #adda78;
+    --code-purple: #9ca9eb;
+    --code-cyan:   #85dacc;
+    --code-comment:#72696a;
+    --code-text:   #fefaf9;
+}
+
+/* The sidebar's own background is transparent on desktop only — the gradient
+   panel below paints both the sidebar area and the extension to the viewport
+   edge so they're guaranteed to match. On mobile, the sidebar becomes a modal
+   and needs its own opaque background. */
+@media (min-width: 960px) {
+    div.bd-sidebar-primary {
+        background-image: none;
+        background-color: transparent;
+    }
+}
+
+/* Paint a single gradient panel that covers the sidebar area -- desktop only.
+   On narrow screens pydata converts the sidebar into a drawer/modal, so skip
+   the panel and let pydata's defaults take over. */
+@media (min-width: 960px) {
+    .bd-container__inner {
+        position: relative;
+    }
+    .bd-container__inner::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -100vw;
+        /* Match the narrowed primary-sidebar width (15rem) so the gradient
+           ends exactly at the sidebar's right edge. */
+        width: calc(100vw + 15rem);
+        background-image: linear-gradient(
+            90deg,
+            var(--pst-gradient-sidebar-left) 0%,
+            var(--pst-gradient-sidebar-left) 100vw,
+            var(--pst-gradient-sidebar-right) 100%
+        );
+        pointer-events: none;
+        z-index: 0;
+    }
+    /* On pages where the primary sidebar is hidden (landing page etc.,
+       marked with .hide-on-wide), drop the panel. */
+    .bd-container__inner:has(.bd-sidebar-primary.hide-on-wide)::before {
+        display: none;
+    }
+    /* Keep sidebar contents above the gradient panel */
+    div.bd-sidebar-primary {
+        position: sticky;
+        z-index: 1;
+    }
+}
+
+/* Note admonition highlight — orange */
+html[data-theme="light"] .admonition.note {
+    border-color: #e16032;
+}
+html[data-theme="light"] .admonition.note > .admonition-title {
+    background-color: rgba(225, 96, 50, 0.15);
+}
+html[data-theme="light"] .admonition.note > .admonition-title::after {
+    color: #e16032 !important;
+}
+html[data-theme="dark"] .admonition.note {
+    border-color: #f38d70;
+}
+html[data-theme="dark"] .admonition.note > .admonition-title {
+    background-color: rgba(243, 141, 112, 0.15);
+}
+html[data-theme="dark"] .admonition.note > .admonition-title::after {
+    color: #f38d70 !important;
+}
+
+/* sphinx-design dropdowns: recolor the default blue-grey accent to theme orange */
+details.sd-dropdown summary.sd-card-header,
+details.sd-dropdown summary.sd-card-header + div.sd-summary-content {
+    --pst-sd-dropdown-color: var(--pst-color-primary);
+}
+
+/* Add breathing room when content immediately follows a figure/image */
+a.image-reference + * {
+    margin-top: 1.5rem;
+}
+
+/* API links in code blocks — subtle underline on hover */
+a.api-link:hover span {
+    text-decoration: underline;
+}
+
+/* =====================================================================
+   Landing page: hide footer, showcase layout
+   ===================================================================== */
+
+/* Hide the "auto" (system settings) theme mode — forces direct light/dark toggle */
+i.theme-switch[data-mode="auto"] {
+    display: none !important;
+}
+/* Theme switcher is a plain light/dark toggle, not a dropdown: hide the
+   caret and the three-option menu (JS also removes the menu). */
+.theme-switch-button::after {
+    display: none !important;
+}
+
+/* Hide footer + footer content on every page */
+footer.bd-footer,
+footer.bd-footer-content,
+.bd-footer-content {
+    display: none !important;
+}
+
+/* =====================================================================
+   Landing page (detected via .showcase-chart which is always present)
+   Unified max-width for the hero, features, chart, and code samples.
+   ===================================================================== */
+:root {
+    --landing-width: 960px;
+}
+
+/* Hide sidebars on DESKTOP only. On mobile, pydata's JS moves the primary
+   sidebar into a <dialog> modal when the hamburger is tapped -- and
+   transfers the class list too, so a `display: none` here would break the
+   menu. Restrict to desktop. */
+@media (min-width: 960px) {
+    html:has(.showcase-chart) .bd-sidebar-primary,
+    html:has(.showcase-chart) .bd-sidebar-secondary {
+        display: none !important;
+    }
+}
+html:has(.showcase-chart) .prev-next-area,
+html:has(.showcase-chart) footer.prev-next-footer,
+html:has(.showcase-chart) .prev-next-footer {
+    display: none !important;
+}
+/* The Tutorials index's "Previous" points back to the home/landing page;
+   drop it so the docs don't send readers back out to the marketing page.
+   "Next" keeps its float: right, so it stays put. */
+html:has(section#tutorials) .prev-next-area .left-prev {
+    display: none !important;
+}
+/* Cap the landing article container at the shared landing width -- every
+   landing section (hero, features, chart, code samples) is itself capped to
+   --landing-width below and centered within it. */
+html:has(.showcase-chart) .bd-main .bd-content .bd-article-container,
+html:has(.showcase-chart) .bd-article-container {
+    max-width: var(--landing-width) !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+/* Cap the hero prose, title, features grid, and chart at the landing width. */
+html:has(.showcase-chart) .bd-article p,
+html:has(.showcase-chart) .bd-article h1,
+html:has(.showcase-chart) .features-grid,
+html:has(.showcase-chart) .showcase-chart {
+    max-width: var(--landing-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Headline banner -- match landing width. */
+html:has(.showcase-chart) .bd-article div[style*="text-align: center"],
+html:has(.showcase-chart) .bd-article div[style*="text-align:center"] {
+    max-width: var(--landing-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+html:has(.showcase-chart) .bd-article div[style*="text-align: center"] img,
+html:has(.showcase-chart) .bd-article div[style*="text-align:center"] img {
+    max-width: 80% !important;
+    height: auto !important;
+}
+/* Spacing between landing sections */
+html:has(.showcase-chart) .showcase-chart {
+    margin-top: 2.5rem !important;
+}
+
+/* -------- Key features: 3x2 card grid -------- */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem auto 0;
+}
+@media (max-width: 900px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+}
+
+.feature-card {
+    padding: 1.25rem 1.25rem 1.1rem;
+    border-radius: 0.4rem;
+    background-color: #fefaf9;
+    border: 1px solid var(--pst-color-border);
+    box-shadow: 0 .2rem .5rem var(--pst-color-shadow),
+                0 0 .0625rem var(--pst-color-shadow);
+}
+html[data-theme="dark"] .feature-card {
+    background-color: #2c2525;
+    border-color: #5a4f4f;
+}
+
+.feature-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--pst-color-accent);
+    margin-bottom: 0.6rem;
+}
+.feature-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.feature-title {
+    font-family: var(--pst-font-family-base);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.3rem 0;
+    color: var(--pst-color-text-base);
+}
+html:has(.showcase-chart) .bd-article .feature-title,
+html:has(.showcase-chart) .bd-article .feature-desc {
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.feature-desc {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    margin: 0;
+}
+.feature-desc code {
+    font-size: 0.8rem;
+    color: var(--code-orange) !important;
+}
+.feature-desc a {
+    color: var(--pst-color-link);
+}
+html[data-theme="light"] .feature-desc { color: #5b5353; }
+html[data-theme="dark"]  .feature-desc { color: #d7cfcd; }
+
+/* -------- Landing-page code grid (2 on top, 1 centered below) --------
+   Row 1: Basic workflow + Label transfer, outer edges anchored to the
+          landing page's content margin (±landing-width/2).
+   Row 2: Pseudobulk differential expression, centered at the same width.
+*/
+.code-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.25rem;
+    row-gap: 1.25rem;
+    max-width: var(--landing-width);
+    margin: 2rem auto 0;
+}
+.code-card {
+    width: 100%;
+    max-width: calc((var(--landing-width) - 1.25rem) / 2);
+    display: flex;
+    flex-direction: column;
+    background-color: #fefaf9;
+    border: 1px solid var(--pst-color-border);
+    border-radius: 0.4rem;
+    box-shadow: 0 .2rem .5rem var(--pst-color-shadow),
+                0 0 .0625rem var(--pst-color-shadow);
+    overflow: hidden;
+}
+html[data-theme="dark"] .code-card {
+    background-color: #2c2525;
+    border-color: #5a4f4f;
+}
+.code-card--left   { justify-self: start; }
+.code-card--right  { justify-self: end;   }
+.code-card--center {
+    grid-column: 1 / -1;
+    justify-self: center;
+}
+html:has(.showcase-chart) .code-grid {
+    max-width: var(--landing-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+@media (max-width: 720px) {
+    .code-grid {
+        grid-template-columns: 1fr;
+    }
+    .code-card {
+        max-width: 100%;
+        justify-self: stretch;
+    }
+    .code-card--center {
+        grid-column: auto;
+    }
+}
+
+/* Tab header integrated into the card (same font size + color as the
+   bar-group titles on the chart). The three mac-style traffic-light dots
+   live at the top-right of the tab via .card-dots. */
+.card-tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--pst-font-family-base);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    padding: 0.6rem 1.1rem 0.35rem;
+    border-bottom: 1px solid var(--pst-color-border);
+    background: transparent;
+}
+html[data-theme="dark"] .card-tab {
+    border-bottom-color: #5a4f4f;
+}
+.card-tab-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.card-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+.card-dot {
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.card-dot-red    { background-color: #ff5f57; }
+.card-dot-yellow { background-color: #febc2e; }
+.card-dot-green  { background-color: #28c840; }
+
+/* Strip the Pygments chrome so the card's own border is the only box. */
+.card-code .highlight,
+.card-code div.highlight {
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+.card-code pre {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0.45rem 1.3rem 1.1rem !important;
+    font-size: 0.85rem !important;
+    line-height: 1.55 !important;
+    overflow-x: auto;
+}
+
+/* Kill the gradient sidebar panel on landing since there's no sidebar */
+html:has(.showcase-chart) .bd-container__inner::before {
+    display: none !important;
+}
+/* Hide the "back to top" button globally */
+#pst-back-to-top {
+    display: none !important;
+}
+
+/* Chart panel -- matches the code + feature cards (same bg, border, shadow) */
+.showcase-chart {
+    padding: 1.25rem 3rem 1.75rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--pst-color-border);
+    box-shadow: 0 .2rem .5rem var(--pst-color-shadow),
+                0 0 .0625rem var(--pst-color-shadow);
+    margin: 2rem auto 0;
+}
+html[data-theme="light"] .showcase-chart { background-color: #fefaf9; }
+html[data-theme="dark"]  .showcase-chart {
+    background-color: #2c2525;
+    border-color: #5a4f4f;
+}
+.showcase-chart-header {
+    text-align: center;
+    margin-bottom: 0.6rem;
+}
+.showcase-chart-title {
+    font-family: var(--pst-font-family-base);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--pst-color-text-base);
+    margin-bottom: 0.2rem;
+}
+.showcase-chart-subtitle {
+    font-family: var(--pst-font-family-base);
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--pst-color-text-muted);
+}
+
+/* Benchmark chart */
+.bench-group {
+    margin-bottom: 1rem;
+}
+.bench-group:last-child {
+    margin-bottom: 0;
+}
+/* GPU variant sits on a separate hardware profile; use a subtle divider
+   + extra vertical margin on either side to signal the context switch. */
+.bench-group--gpu {
+    margin-top: 1.9rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--pst-color-border);
+}
+html[data-theme="dark"] .bench-group--gpu {
+    border-top-color: #5a4f4f;
+}
+/* Per-group hardware note (used by the GPU group). */
+.bench-note {
+    font-family: var(--pst-font-family-base);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--pst-color-text-base);
+    margin: -0.2rem 0 0.5rem;
+}
+.bench-title {
+    font-family: var(--pst-font-family-base);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 0.2rem;
+    color: var(--pst-color-text-base);
+}
+.bench-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    height: 1.6rem;
+}
+.bench-label {
+    width: 7.5rem;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    text-align: right;
+    padding-right: 0.5rem;
+}
+.bench-track {
+    flex: 1;
+    position: relative;
+    height: 1.2rem;
+    min-width: 0;
+    /* Reserve space past the bar for the time + multiplier label
+       (e.g. "13.8h (1057×)" on the longest bar). */
+    margin-right: 5.75rem;
+    overflow: visible;
+}
+.bench-bar {
+    height: 100%;
+    border-radius: 0.2rem;
+    transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    min-width: 2px;
+}
+/* Time label: absolutely placed at the bar's tip, fades in after the
+   width animation stops. JS sets `left: <pct>%` on transitionend and
+   toggles .is-done to reveal it. */
+.bench-val {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    padding-left: 0.4rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease, left 0s;
+    pointer-events: none;
+}
+.bench-val.is-done {
+    opacity: 1;
+}
+html[data-theme="light"] .bench-val { color: #5b5353; }
+html[data-theme="dark"]  .bench-val { color: #fefaf9; }
+html[data-theme="light"] .bar-brisc  { background: #e16032; }
+html[data-theme="light"] .bar-scanpy { background: #269d69; }
+html[data-theme="light"] .bar-seurat { background: #1c8ca8; }
+html[data-theme="light"] .bar-rapids { background: #7058be; }
+html[data-theme="dark"]  .bar-brisc  { background: #f38d70; }
+html[data-theme="dark"]  .bar-scanpy { background: #adda78; }
+html[data-theme="dark"]  .bar-seurat { background: #85dacc; }
+html[data-theme="dark"]  .bar-rapids { background: #9ca9eb; }
+
+div.sd-card {
+    background-image: linear-gradient(0deg, var(--pst-gradient-sidebar-left) 0%, var(--pst-gradient-sidebar-right) 100%);
+}
+
+/* match docs footer colour to the header */
+footer.bd-footer {
+    background-color: var(--pst-color-on-background);
+}
+
+/* Search bar background — match the navbar */
+html[data-theme="light"] .search-button-field {
+    background-color: #fefaf9;
+}
+html[data-theme="dark"] .search-button-field {
+    background-color: #403838;
+}
+
+/* fix visited link colour */
+a:visited {
+    color: var(--pst-color-link);
+}
+
+/* give code examples the same faint drop-shadow as admonitions */
+pre {
+    box-shadow: 0 .2rem .5rem var(--pst-color-shadow), 0 0 .0625rem var(--pst-color-shadow) !important;
+}
+
+/* Mobile: keep wide code blocks and text outputs (e.g. polars tables, which
+   can run ~150 chars wide) scrolling inside their own box instead of pushing
+   past the viewport. The theme sets `pre{overflow:auto}`, but the wrapping
+   `div.highlight` is width-unbounded, so on a narrow screen a very wide block
+   stretches the article and ends up clipped on the left. Bounding the wrapper
+   and the <pre> to the available width makes each block a self-contained
+   horizontal scroller. */
+.bd-article div.highlight {
+    max-width: 100%;
+}
+.bd-article div.highlight pre {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* smaller navbar logo */
+.navbar-brand img {
+    height: 28px;
+    width: auto;
+}
+
+/* Mobile: ensure nav header buttons (hamburger, logo, search, theme) are
+   clickable and not hidden behind any custom layer */
+@media (max-width: 959.98px) {
+    /* Auto-hiding header: sticky so it can overlay content, then revealed on
+       scroll-up / hidden on scroll-down by header-reveal.js (which toggles
+       .bd-header--hidden). This keeps the nav hamburger reachable from
+       anywhere on a long page, not just at the very top. If the JS never runs,
+       the header simply stays pinned — still reachable. */
+    .bd-header {
+        position: sticky;
+        top: 0;
+        z-index: 1050;
+        transition: transform 0.25s ease;
+        will-change: transform;
+    }
+    .bd-header.bd-header--hidden {
+        transform: translateY(-100%);
+    }
+    .bd-header__inner,
+    .bd-header .navbar-header-items__start,
+    .bd-header .navbar-header-items__end {
+        position: relative;
+        z-index: 1050;
+    }
+    .bd-header button.primary-toggle,
+    .bd-header .navbar-brand,
+    .bd-header .search-button__button,
+    .bd-header .theme-switch-button {
+        pointer-events: auto !important;
+    }
+    /* Push the hamburger drawer's contents below the device status bar */
+    #pst-primary-sidebar-modal,
+    #pst-secondary-sidebar-modal {
+        padding-top: env(safe-area-inset-top, 0) !important;
+    }
+    #pst-primary-sidebar-modal[open],
+    #pst-secondary-sidebar-modal[open] {
+        padding-top: calc(env(safe-area-inset-top, 0) + 3.5rem) !important;
+    }
+}
+
+/* Respect reduced-motion: the auto-hiding header snaps rather than slides. */
+@media (prefers-reduced-motion: reduce) {
+    .bd-header {
+        transition: none;
+    }
+}
+
+/* Header layout: use the theme's native Bootstrap navbar (a col-lg-3 brand +
+   col-lg-9 nav/search flex row). An earlier customization forced a
+   `display:grid` + `display:contents` override on top to page-center the nav,
+   but that fought the Bootstrap column classes and broke at mid widths —
+   truncating the "brisc documentation" wordmark and stacking the search box
+   and theme toggle onto a second row (visible even well above 1200px). It's
+   removed so the native, tested single-row layout takes over. The hamburger
+   still kicks in under 960px (that breakpoint is baked into Bootstrap's
+   offcanvas/modal and can't be moved from CSS).
+
+   The theme splits the header into fixed Bootstrap columns — col-lg-3 (25%)
+   for the brand and col-lg-9 (75%) for nav + search. That misallocates space:
+   the brand needs far less than 25% while nav + search need more than 75%, so
+   the search box + theme toggle get squeezed and the theme's `flex-flow:wrap`
+   on the end group drops the toggle onto a second row. Fix: size the brand to
+   its content and let the nav/search track take the rest, then center the nav
+   in that track and keep the end group on one line. */
+@media (min-width: 960px) {
+    .bd-header__inner .navbar-header-items__start {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+    .bd-header__inner .navbar-header-items {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+    .bd-header__inner .navbar-header-items__center {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    .bd-header__inner .navbar-header-items__end {
+        flex-wrap: nowrap !important;
+        flex-shrink: 0;
+    }
+}
+
+/* =====================================================================
+   Code highlighting — Monokai Pro Ristretto Filter
+   Hardcoded here as the final CSS file to guarantee override.
+   ===================================================================== */
+
+/* Code block background */
+html[data-theme="light"] div.highlight,
+html[data-theme="light"] div.highlight pre { background: #fefaf9 !important; color: #5b5353 !important; }
+html[data-theme="dark"] div.highlight,
+html[data-theme="dark"] div.highlight pre  { background: #2c2525 !important; color: #fefaf9 !important; }
+
+/* Light: comments */
+html[data-theme="light"] .highlight .c  { color: #a59c9b !important; font-style: italic !important; }
+html[data-theme="light"] .highlight .ch { color: #a59c9b !important; font-style: italic !important; }
+html[data-theme="light"] .highlight .cm { color: #a59c9b !important; font-style: italic !important; }
+html[data-theme="light"] .highlight .cp { color: #a59c9b !important; font-style: italic !important; }
+html[data-theme="light"] .highlight .cpf{ color: #a59c9b !important; font-style: italic !important; }
+html[data-theme="light"] .highlight .c1 { color: #a59c9b !important; font-style: italic !important; }
+html[data-theme="light"] .highlight .cs { color: #a59c9b !important; font-style: italic !important; }
+/* Light: keywords */
+html[data-theme="light"] .highlight .k  { color: #e14775 !important; }
+html[data-theme="light"] .highlight .kd { color: #e14775 !important; }
+html[data-theme="light"] .highlight .kn { color: #e14775 !important; }
+html[data-theme="light"] .highlight .kp { color: #e14775 !important; }
+html[data-theme="light"] .highlight .kr { color: #e14775 !important; }
+html[data-theme="light"] .highlight .kt { color: #e14775 !important; }
+html[data-theme="light"] .highlight .kc { color: #7058be !important; }
+/* Light: names */
+html[data-theme="light"] .highlight .n  { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .nn { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .nv { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .nx { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .py { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .nl { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .nf { color: #269d69 !important; }
+html[data-theme="light"] .highlight .fm { color: #269d69 !important; }
+html[data-theme="light"] .highlight .nc { color: #269d69 !important; }
+html[data-theme="light"] .highlight .nb { color: #1c8ca8 !important; }
+html[data-theme="light"] .highlight .nd { color: #1c8ca8 !important; }
+html[data-theme="light"] .highlight .ne { color: #1c8ca8 !important; }
+html[data-theme="light"] .highlight .nt { color: #1c8ca8 !important; }
+html[data-theme="light"] .highlight .na { color: #e16032 !important; }
+html[data-theme="light"] .highlight .bp { color: #e16032 !important; }
+/* Light: strings */
+html[data-theme="light"] .highlight .s  { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .s1 { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .s2 { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .sa { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .sb { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .sc { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .dl { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .sd { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .se { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .sh { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .si { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .sx { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .sr { color: #cc7a0a !important; }
+html[data-theme="light"] .highlight .ss { color: #cc7a0a !important; }
+/* Light: numbers & literals */
+html[data-theme="light"] .highlight .m  { color: #7058be !important; }
+html[data-theme="light"] .highlight .mb { color: #7058be !important; }
+html[data-theme="light"] .highlight .mf { color: #7058be !important; }
+html[data-theme="light"] .highlight .mh { color: #7058be !important; }
+html[data-theme="light"] .highlight .mi { color: #7058be !important; }
+html[data-theme="light"] .highlight .mo { color: #7058be !important; }
+html[data-theme="light"] .highlight .il { color: #7058be !important; }
+/* Light: operators & punctuation */
+html[data-theme="light"] .highlight .o  { color: #e14775 !important; }
+html[data-theme="light"] .highlight .ow { color: #e14775 !important; }
+html[data-theme="light"] .highlight .p  { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .pm { color: #5b5353 !important; }
+html[data-theme="light"] .highlight .err{ color: #e14775 !important; background: none !important; }
+html[data-theme="light"] .highlight .w  { color: #5b5353 !important; }
+
+/* Dark: comments */
+html[data-theme="dark"] .highlight .c  { color: #72696a !important; font-style: italic !important; }
+html[data-theme="dark"] .highlight .ch { color: #72696a !important; font-style: italic !important; }
+html[data-theme="dark"] .highlight .cm { color: #72696a !important; font-style: italic !important; }
+html[data-theme="dark"] .highlight .cp { color: #72696a !important; font-style: italic !important; }
+html[data-theme="dark"] .highlight .cpf{ color: #72696a !important; font-style: italic !important; }
+html[data-theme="dark"] .highlight .c1 { color: #72696a !important; font-style: italic !important; }
+html[data-theme="dark"] .highlight .cs { color: #72696a !important; font-style: italic !important; }
+/* Dark: keywords */
+html[data-theme="dark"] .highlight .k  { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .kd { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .kn { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .kp { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .kr { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .kt { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .kc { color: #9ca9eb !important; }
+/* Dark: names */
+html[data-theme="dark"] .highlight .n  { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .nn { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .nv { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .nx { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .py { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .nl { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .nf { color: #adda78 !important; }
+html[data-theme="dark"] .highlight .fm { color: #adda78 !important; }
+html[data-theme="dark"] .highlight .nc { color: #adda78 !important; }
+html[data-theme="dark"] .highlight .nb { color: #85dacc !important; }
+html[data-theme="dark"] .highlight .nd { color: #85dacc !important; }
+html[data-theme="dark"] .highlight .ne { color: #85dacc !important; }
+html[data-theme="dark"] .highlight .nt { color: #85dacc !important; }
+html[data-theme="dark"] .highlight .na { color: #f38d70 !important; }
+html[data-theme="dark"] .highlight .bp { color: #f38d70 !important; }
+/* Dark: strings */
+html[data-theme="dark"] .highlight .s  { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .s1 { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .s2 { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .sa { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .sb { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .sc { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .dl { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .sd { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .se { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .sh { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .si { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .sx { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .sr { color: #f9cc6c !important; }
+html[data-theme="dark"] .highlight .ss { color: #f9cc6c !important; }
+/* Dark: numbers & literals */
+html[data-theme="dark"] .highlight .m  { color: #9ca9eb !important; }
+html[data-theme="dark"] .highlight .mb { color: #9ca9eb !important; }
+html[data-theme="dark"] .highlight .mf { color: #9ca9eb !important; }
+html[data-theme="dark"] .highlight .mh { color: #9ca9eb !important; }
+html[data-theme="dark"] .highlight .mi { color: #9ca9eb !important; }
+html[data-theme="dark"] .highlight .mo { color: #9ca9eb !important; }
+html[data-theme="dark"] .highlight .il { color: #9ca9eb !important; }
+/* Dark: operators & punctuation */
+html[data-theme="dark"] .highlight .o  { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .ow { color: #f06883 !important; }
+html[data-theme="dark"] .highlight .p  { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .pm { color: #fefaf9 !important; }
+html[data-theme="dark"] .highlight .err{ color: #f06883 !important; background: none !important; }
+html[data-theme="dark"] .highlight .w  { color: #fefaf9 !important; }
+
+/* (Inline-code chip styling lives near the top of this file, under the
+   ".bd-article cite, code.docutils, code.literal" rule.) */
+
+/* =====================================================================
+   Autodoc function/class signatures
+   The HTML uses .sig with nested .sig-name, .sig-param, .n, .p, .o,
+   .s, .k, .default_value etc. These mostly mirror pygments classes,
+   but we need a few extra rules: parameter name vs type, and the
+   `class` keyword on class signatures.
+   ===================================================================== */
+
+html[data-theme] dt.sig {
+    font-family: var(--pst-font-family-monospace);
+    color: var(--code-text);
+    background: transparent;
+}
+
+/* `class brisc.SingleCell(` — split the parts */
+html[data-theme] dt.sig .property,
+html[data-theme] dt.sig .property .k,
+html[data-theme] dt.sig .property .pre   { color: var(--code-red); }   /* `class` */
+html[data-theme] dt.sig .sig-prename,
+html[data-theme] dt.sig .sig-prename .pre { color: var(--code-comment); } /* `single_cell.` */
+html[data-theme] dt.sig .sig-name,
+html[data-theme] dt.sig .sig-name .pre   { color: var(--code-green); } /* `SingleCell` / `__init__` */
+html[data-theme] dt.sig .sig-paren       { color: var(--code-text); }
+/* @staticmethod decorator (conf.py rewrites Sphinx's `static ` keyword into
+   this): render it on its own line above the signature, decorator-colored,
+   like Python source. */
+html[data-theme] dt.sig .staticmethod-decorator {
+    display: block;
+    font-style: normal;
+}
+html[data-theme] dt.sig .staticmethod-decorator,
+html[data-theme] dt.sig .staticmethod-decorator .pre { color: var(--code-yellow); }
+
+/* Parameter name = first .n inside an em.sig-param */
+html[data-theme] em.sig-param > .n:first-child,
+html[data-theme] em.sig-param > .n:first-child .pre {
+    color: var(--code-orange);
+    font-style: normal;
+}
+
+/* Type expression = subsequent .n (with all its nested .pre) */
+html[data-theme] em.sig-param > .n:not(:first-child),
+html[data-theme] em.sig-param > .n:not(:first-child) .pre {
+    color: var(--code-cyan);
+    font-style: italic;
+}
+
+/* Punctuation, operators, strings, constants, defaults inside sig */
+html[data-theme] dt.sig .p,
+html[data-theme] dt.sig .p .pre              { color: var(--code-text); font-style: normal; }
+html[data-theme] dt.sig .o,
+html[data-theme] dt.sig .o .pre              { color: var(--code-red); font-style: normal; }
+html[data-theme] dt.sig .s,
+html[data-theme] dt.sig .s .pre              { color: var(--code-yellow); font-style: normal; }
+html[data-theme] dt.sig em.sig-param > .k,
+html[data-theme] dt.sig em.sig-param > .k .pre,
+html[data-theme] em.sig-param .k,
+html[data-theme] em.sig-param .k .pre        { color: var(--code-purple); font-style: normal; }
+html[data-theme] dt.sig .default_value,
+html[data-theme] dt.sig .default_value .pre  { color: var(--code-purple); font-style: normal; }
+html[data-theme] dt.sig .w                   { color: inherit; }
+
+/* Positional-only `/` and keyword-only `*` separators */
+html[data-theme] .positional-only-separator,
+html[data-theme] .positional-only-separator .pre,
+html[data-theme] .keyword-only-separator,
+html[data-theme] .keyword-only-separator .pre  { color: var(--code-red); }
+
+/* Make sure the heavy default `dt.sig` background from pydata is removed
+   so the gradient/page bg shows through, matching the editor look */
+dl.py > dt.sig.sig-object.py {
+    background-color: var(--pst-color-background) !important;
+    border-left: none;
+}
+
+/* Method names in autosummary overview tables -- bold theme green,
+   matching the green used for function calls in code blocks. */
+.bd-content table.autosummary a code,
+.bd-content table.autosummary a code .pre,
+.bd-content table.autosummary td a code,
+.bd-content table.autosummary td a code .pre {
+    color: var(--code-green) !important;
+    font-weight: 700 !important;
+}
+.bd-content table.autosummary a:hover code {
+    text-decoration: underline;
+}
+
+/* =====================================================================
+   "On this page" secondary sidebar: shown on tutorial content pages (a
+   `tutorial-page` body class is added by the build-finished hook in
+   conf.py, and secondary_sidebar_items enables page-toc for tutorials/*),
+   hidden everywhere else.
+   ===================================================================== */
+body:not(.tutorial-page) .bd-sidebar-secondary,
+body:not(.tutorial-page) #pst-secondary-sidebar,
+body:not(.tutorial-page) #pst-secondary-sidebar-modal,
+body:not(.tutorial-page) .secondary-toggle {
+    display: none !important;
+}
+
+/* Remove the breadcrumb trail (home > ... > page) on every page, and
+   collapse the header-article slot it used to occupy so the content moves
+   up into the freed space. */
+.bd-breadcrumbs,
+nav[aria-label="Breadcrumb"] {
+    display: none !important;
+}
+.bd-header-article .header-article-item {
+    min-height: 0 !important;
+}
+
+/* The article-header band (breadcrumbs + pydata's toggles) is unused now;
+   hide it entirely so nothing reserves space above the content. */
+.bd-header-article {
+    display: none !important;
+}
+
+/* Pull the title/content up into the space the breadcrumb vacated. */
+@media (min-width: 960px) {
+    html:not(:has(.showcase-chart)) .bd-article {
+        padding-top: 0.6rem;
+    }
+}
+
+/* Non-home pages: narrow the primary sidebar and pull it toward the left
+   edge so the main content gets more room. */
+@media (min-width: 960px) {
+    html:not(:has(.showcase-chart)) .bd-sidebar-primary {
+        width: 15rem;
+        flex: 0 0 15rem;
+        padding-left: 0.5rem;
+        padding-right: 0.75rem;
+    }
+}
+
+/* Scroll-spy: highlight the left-sidebar link matching the section
+   currently visible on API pages. */
+body.api-page .bd-sidebar-primary a.current-section {
+    color: var(--pst-color-accent) !important;
+    font-weight: 700;
+}
+
+/* API pages: drop the "#" permalink ("Link to this definition"/heading)
+   anchors that appear after signatures and headings. */
+body.api-page a.headerlink {
+    display: none !important;
+}
+
+/* Source-link target (Sphinx viewcode): strip the default yellow
+   :target background highlight. */
+.viewcode-block,
+div.viewcode-block,
+.viewcode-block:target,
+div.viewcode-block:target,
+dt:target,
+span:target,
+p:target,
+.highlight :target {
+    background: transparent !important;
+}
+
+/* Method overview tables (autosummary) — light: remove border, zebra;
+   dark: flat bg with #faf4f2 border */
+
+html[data-theme="light"] table.autosummary tr.row-odd > td {
+    background-color: var(--pst-color-on-background);
+}
+html[data-theme="light"] table.autosummary tr.row-even > td {
+    background-color: var(--pst-color-background);
+}
+
+/* Content tables (e.g. tutorial summary) — match autosummary look.
+   Header cells (th) get the same background as the first body row so
+   there's no contrast band at the top. */
+html[data-theme="light"] .bd-content .table {
+    border: none;
+}
+html[data-theme="light"] .bd-content .table td,
+html[data-theme="light"] .bd-content .table th {
+    border: none;
+}
+html[data-theme="light"] .bd-content .table thead th,
+html[data-theme="light"] .bd-content .table tbody tr:nth-child(odd) > td {
+    background-color: var(--pst-color-on-background);
+}
+html[data-theme="light"] .bd-content .table tbody tr:nth-child(even) > td {
+    background-color: var(--pst-color-background);
+}
+html[data-theme="dark"] .bd-content .table {
+    border: 1px solid #faf4f2;
+}
+html[data-theme="dark"] .bd-content .table td,
+html[data-theme="dark"] .bd-content .table th {
+    border-color: #faf4f2;
+}
+html[data-theme="dark"] .bd-content .table tr > td,
+html[data-theme="dark"] .bd-content .table thead th {
+    background-color: #2c2525;
+}
+
+/* Dark mode: fix blue-grey text to #faf4f2 */
+/* Top navbar buttons */
+html[data-theme="dark"] .bd-header .nav-link {
+    color: #faf4f2 !important;
+}
+/* Search bar text + kbd shortcuts */
+html[data-theme="dark"] .search-button-field,
+html[data-theme="dark"] .search-button__default-text,
+html[data-theme="dark"] .search-button__kbd-shortcut,
+html[data-theme="dark"] .kbd-shortcut__modifier,
+html[data-theme="dark"] .search-button-field kbd {
+    color: #faf4f2 !important;
+}
+/* Section navigation (left sidebar) */
+html[data-theme="dark"] .bd-sidebar-primary .sidebar-primary-items__start .nav-link,
+html[data-theme="dark"] .bd-sidebar-primary .sidebar-primary-items__start .caption-text,
+html[data-theme="dark"] .bd-sidebar-primary .nav .nav-link,
+html[data-theme="dark"] .bd-links .nav-link,
+html[data-theme="dark"] .bd-sidebar-primary .toctree-l1 > a,
+html[data-theme="dark"] .bd-sidebar-primary .toctree-l2 > a,
+html[data-theme="dark"] .bd-sidebar-primary .toctree-l3 > a,
+html[data-theme="dark"] .bd-sidebar-primary label.toctree-toggle {
+    color: #faf4f2 !important;
+}
+/* "On this page" right sidebar */
+html[data-theme="dark"] .bd-toc-nav .nav-link,
+html[data-theme="dark"] .bd-toc-nav .section-nav a,
+html[data-theme="dark"] .page-toc .nav-link,
+html[data-theme="dark"] #pst-page-navigation-heading-2 {
+    color: #faf4f2 !important;
+}
+/* Muted text override */
+html[data-theme="dark"] {
+    --pst-color-text-muted: #c5b8b6;
+}
+
+/* ===== Light mode: force key UI text to pure black ===== */
+/* Top navbar buttons (Tutorials, SingleCell, Pseudobulk, DE) */
+html[data-theme="light"] .bd-header .nav-link {
+    color: #000 !important;
+}
+/* Search bar text + Ctrl/K kbd shortcuts */
+html[data-theme="light"] .search-button-field,
+html[data-theme="light"] .search-button__default-text,
+html[data-theme="light"] .search-button__kbd-shortcut,
+html[data-theme="light"] .kbd-shortcut__modifier,
+html[data-theme="light"] .search-button-field kbd {
+    color: #000 !important;
+}
+/* Light/dark theme switcher icon */
+html[data-theme="light"] .theme-switch-button,
+html[data-theme="light"] .theme-switch-button i {
+    color: #000 !important;
+}
+/* Bar-group titles + code card tab titles share the same treatment:
+   theme-aware text color (black in light mode, near-white in dark mode),
+   same font size, weight, and sentence-case. The GPU hardware note
+   uses the same text color so it reads as part of the title block. */
+html[data-theme="light"] .bench-title,
+html[data-theme="light"] .bench-note,
+html[data-theme="light"] .card-tab {
+    color: #000 !important;
+}
+html[data-theme="dark"] .bench-title,
+html[data-theme="dark"] .bench-note,
+html[data-theme="dark"] .card-tab {
+    color: #fefaf9 !important;
+}
+/* Plot title + subtitle */
+html[data-theme="light"] .showcase-chart-title,
+html[data-theme="light"] .showcase-chart-subtitle {
+    color: #000 !important;
+}
+
+/* Hero paragraph CTA ("Get started. >" link to tutorials) */
+.hero-cta {
+    color: var(--pst-color-accent) !important;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    margin-left: 0.15em;
+}
+.hero-cta strong {
+    font-weight: 700;
+}
+.hero-cta:hover {
+    color: var(--pst-color-secondary) !important;
+    text-decoration: underline;
+}
+
+/* Consistent prose link style: bold, no underline, underline on hover.
+   Target <a> inside paragraphs/list-items so we don't accidentally
+   bold autosummary tables, sidebar entries, nav links, or headerlinks. */
+.bd-article p a:not(.headerlink):not(.api-link),
+.bd-article li > p a:not(.headerlink):not(.api-link),
+.feature-desc a {
+    font-weight: 700;
+    text-decoration: none;
+}
+.bd-article p a:not(.headerlink):not(.api-link):hover,
+.bd-article li > p a:not(.headerlink):not(.api-link):hover,
+.feature-desc a:hover {
+    text-decoration: underline;
+}
+
+/* Sidebar: nudge the expand/collapse chevrons slightly left of the
+   sidebar's right edge so they're not flush against the panel border. */
+.bd-sidebar-primary .toctree-toggle,
+.bd-sidebar-primary summary .toctree-toggle {
+    margin-right: 0.6rem;
+}
+.bd-sidebar-primary details > summary {
+    padding-right: 0.2rem;
+}
+
+/* Header navbar: theme-fix.js renders the nav links as rounded chips —
+   [Tutorials]  API:  [SingleCell] [Pseudobulk] [DE]. The "API:" label uses
+   the nav color; the three API classes are grouped under it. */
+html[data-theme="light"] { --api-nav-label: #000; }
+html[data-theme="dark"]  { --api-nav-label: #faf4f2; }
+
+/* The spacer must out-specify the theme's `ul.navbar-nav>li.nav-item
+   {margin-inline:2px}` (0,3,2), so target the group <li> by its full path. */
+.bd-header ul.navbar-nav > li.nav-item.api-nav-group {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+    margin-left: 1.125rem;
+}
+/* Match the gap between standalone chips (Installation, Tutorials, ...) to the
+   0.4rem gap between the API chips inside the group: the theme's default
+   margin-inline:2px is tighter, and 0.2rem each side sums to 0.4rem between
+   neighbours. Exclude the API group so its larger left margin still stands. */
+.bd-header ul.navbar-nav > li.nav-item:not(.api-nav-group) {
+    margin-inline: 0.2rem;
+}
+.bd-header .bd-navbar-elements .api-nav-group .api-nav-fix {
+    color: var(--api-nav-label);
+    font-weight: 600;
+}
+/* Each nav class is a rounded chip outlined with the theme border (Tutorials
+   chipped in place; the API classes inside the group). */
+.bd-header .bd-navbar-elements .nav-link.api-nav-chip {
+    display: inline-block !important;
+    padding: 0.18rem 0.6rem !important;
+    border-radius: 0.6rem;
+    background: var(--pst-color-surface);
+    border: 1px solid var(--pst-color-border);
+    line-height: 1.35;
+    color: var(--pst-color-text-base);
+}
+/* Drop pydata's hover/current underline (the ::before bar) on chips. */
+.bd-header .bd-navbar-elements .nav-link.api-nav-chip::before {
+    display: none !important;
+}
+/* Hover and the active/current section both show only the orange outline;
+   .current is mirrored onto the link in JS so it persists on subpages. */
+.bd-header .bd-navbar-elements .nav-link.api-nav-chip:hover,
+.bd-header .bd-navbar-elements .nav-link.api-nav-chip.current,
+.bd-header .bd-navbar-elements .nav-link.api-nav-chip.active {
+    border-color: var(--pst-color-accent);
+    color: var(--pst-color-accent) !important;
+    background: var(--pst-color-surface);
+}
+
+/* Never show the navbar icon tooltips. They're Bootstrap tooltips rendered as
+   a detached <div class="tooltip"> with text only (no per-tooltip hook), so the
+   robust fix is to hide the layer. The only two — "Color mode" (gear) and
+   "Search" — are redundant: the gear is self-evident and the search field
+   already shows its "Search Ctrl+K" label inline. */
+.tooltip {
+    display: none !important;
+}
+
+/* Installation is the first guide page; its "previous" link points back to the
+   landing page ("brisc"), which isn't a real step in the guide flow. Hide it,
+   and keep "Next: Tutorials" pinned to the right. */
+body.installation-page .prev-next-area .left-prev {
+    display: none !important;
+}
+body.installation-page .prev-next-area .right-next {
+    margin-left: auto;
+}
+
+/* Guide sidebar headers (Installation / Tutorials): clickable, but styled like
+   the section titles rather than links — inherit the bd-links__title font and
+   color, drop the underline, and use the accent color on hover and for the
+   current page. */
+.bd-links__title.guide-nav-link a {
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+}
+.bd-links__title.guide-nav-link a:hover,
+.bd-links__title.guide-nav-link a.current {
+    color: var(--pst-color-accent);
+    text-decoration: none;
+}
+
+/* Underline inline <cite> reference links (method/class refs and parameter
+   jumps) on hover. Decorate the inner <cite> — like the existing span rule for
+   code-block links — so the underline takes the text's own color, not the
+   link's inherited color. */
+a.api-link:hover cite {
+    text-decoration: underline;
+}
+
+/* A link's hover underline must take the TEXT colour, not the <a>'s link
+   colour. Wherever the visible text sits in a coloured inline element -- a type
+   <em> (parameter/return types), an inline <code> chip (xref/meth roles or an
+   external link wrapping code), or a <cite> ref -- underline that element and
+   suppress the underline on the <a>. Links whose text sits directly in the <a>
+   keep the <a>'s own underline, which already matches. (api-link handled above;
+   it colours its inner span/cite the same way.) */
+.bd-article p a:not(.headerlink):not(.api-link):has(> em, > code, > cite):hover,
+.bd-article li > p a:not(.headerlink):not(.api-link):has(> em, > code, > cite):hover {
+    text-decoration: none;
+}
+.bd-article p a:hover > em,
+.bd-article p a:hover > code,
+.bd-article p a:hover > cite,
+.bd-article li > p a:hover > em,
+.bd-article li > p a:hover > code,
+.bd-article li > p a:hover > cite {
+    text-decoration: underline;
+}
+
+/* Parameter cross-reference jump targets (ids added by conf.py) need no
+   scroll offset of their own: the theme already sets `scroll-padding-top`
+   on <html> (header-height + 1rem), which fragment navigation honours. A
+   scroll-margin-top here would ADD to that, landing the parameter in the
+   upper-middle of the viewport instead of just below the header. */
+
+/* The landing page uses the logo as its visual title, so visually hide the
+   H1 text. It stays in the DOM to supply the document title (browser tab and
+   prev/next navigation label) and the document outline. */
+html:has(.showcase-chart) .bd-article h1 {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}

@@ -1,0 +1,36 @@
+# Sphinx build output
+build/
+# Cloudflare wrangler cache
+.wrangler/
+# Python
+__pycache__/
+*.py[cod]
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# Autosummary API stubs (regenerated at build); keep the hand-written pages
+source/singlecell/*.rst
+source/pseudobulk/*.rst
+source/de/*.rst
+!source/singlecell/index.rst
+!source/singlecell/analysis.rst
+!source/singlecell/data_access.rst
+!source/singlecell/io.rst
+!source/singlecell/manipulation.rst
+!source/singlecell/properties.rst
+!source/singlecell/typedefs.rst
+!source/pseudobulk/index.rst
+!source/pseudobulk/analysis.rst
+!source/pseudobulk/data_access.rst
+!source/pseudobulk/dictionary_interface.rst
+!source/pseudobulk/io.rst
+!source/pseudobulk/manipulation.rst
+!source/pseudobulk/properties.rst
+!source/de/index.rst
+!source/de/analysis.rst
+!source/de/io.rst
+!source/de/properties.rst
+
+# Real file, but brisc/.gitignore blanket-ignores *.txt
+!deploy/robots.txt
