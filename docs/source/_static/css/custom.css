@@ -690,9 +690,9 @@ html[data-theme="dark"] .bench-group--gpu {
 }
 .bench-bar {
     height: 100%;
-    border-radius: 0.2rem;
+    border-radius: 1px;
     transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    min-width: 2px;
+    min-width: 1px;
 }
 /* Time label: absolutely placed at the bar's tip, fades in after the
    width animation stops. JS sets `left: <pct>%` on transitionend and
@@ -722,6 +722,27 @@ html[data-theme="dark"]  .bar-brisc  { background: #f38d70; }
 html[data-theme="dark"]  .bar-scanpy { background: #adda78; }
 html[data-theme="dark"]  .bar-seurat { background: #85dacc; }
 html[data-theme="dark"]  .bar-rapids { background: #9ca9eb; }
+/* On phones the label column + value reservation squeeze the track into
+   short, chip-like bars. Stack the label above a full-width track so the
+   bars read as proper horizontal bars. */
+@media (max-width: 600px) {
+    .bench-row {
+        flex-direction: column;
+        align-items: stretch;
+        height: auto;
+        margin-bottom: 0.55rem;
+    }
+    .bench-label {
+        width: auto;
+        text-align: left;
+        padding-right: 0;
+        margin-bottom: 0.15rem;
+    }
+    .bench-track {
+        flex: none;
+        height: 1.2rem;
+    }
+}
 
 div.sd-card {
     background-image: linear-gradient(0deg, var(--pst-gradient-sidebar-left) 0%, var(--pst-gradient-sidebar-right) 100%);
