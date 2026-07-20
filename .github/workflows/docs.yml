@@ -29,7 +29,7 @@ jobs:
           cache: pip
       - uses: actions/setup-node@v4   # for wrangler
         with:
-          node-version: '20'
+          node-version: '22'
 
       # Compile brisc from source + install the Sphinx stack (no R needed).
       - name: Install brisc + docs deps
