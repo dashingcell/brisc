@@ -13,13 +13,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.1  # requires specifying an explicit minor version
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
@@ -28,7 +28,7 @@ jobs:
     name: Build source distributions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Build sdist
@@ -40,7 +40,7 @@ jobs:
           grep -qE 'brisc/[^/]+\.pxd$' files.txt   # top-level headers present
           ! grep -qE 'brisc/x86_64_v' files.txt    # generated variant dirs absent
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cibw-wheels-sdist
           path: dist/*.tar.gz
@@ -59,17 +59,17 @@ jobs:
       run:
         shell: bash -el {0}   # login shell -> conda env active
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Download wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: cibw-wheels-*
           merge-multiple: true
           path: wheelhouse
       - name: Create conda env
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: brisc
           init-shell: bash
@@ -101,7 +101,7 @@ jobs:
       id-token: write
     steps:
       - name: Download wheels and source distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: cibw-wheels-*
           merge-multiple: true
