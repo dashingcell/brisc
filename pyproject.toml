@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "brisc"
-version = "0.1.1"
+version = "0.1.2"
 description = "Fast single-cell toolkit"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
     {name = "Michael Wainberg", email = "m.wainberg@utoronto.ca"}
 ]
@@ -43,7 +43,7 @@ include = ["brisc", "brisc.*"]
 
 [tool.cibuildwheel]
 build = "cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*" 
-skip = "*musllinux* *i686* *ppc64le* *s390x*"
+skip = "*musllinux* *i686* *ppc64le* *s390x* cp314t-* cp315-* cp315t-*"
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"

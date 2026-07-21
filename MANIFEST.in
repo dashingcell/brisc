@@ -1,0 +1,5 @@
+recursive-include brisc *.pyx *.pxd
+prune brisc/x86_64_v2
+prune brisc/x86_64_v3
+prune brisc/x86_64_v4
+prune brisc/sve

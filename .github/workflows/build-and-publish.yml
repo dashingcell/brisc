@@ -14,8 +14,10 @@ jobs:
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v4.1  # requires specifying an explicit minor version
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -27,8 +29,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Build sdist
         run: pipx run build --sdist
+      - name: Sanity-check sdist contents
+        run: |
+          tar tzf dist/brisc-*.tar.gz > files.txt
+          grep -qE 'brisc/[^/]+\.pyx$' files.txt   # top-level Cython sources present
+          grep -qE 'brisc/[^/]+\.pxd$' files.txt   # top-level headers present
+          ! grep -qE 'brisc/x86_64_v' files.txt    # generated variant dirs absent
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
@@ -50,6 +60,8 @@ jobs:
         shell: bash -el {0}   # login shell -> conda env active
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Download wheels
         uses: actions/download-artifact@v4
         with:
